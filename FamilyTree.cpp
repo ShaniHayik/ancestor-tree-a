@@ -3,6 +3,9 @@
 //
 
 #include "FamilyTree.hpp"
+#include <string>
+#include <exception>
+#include <stdexcept>
 using namespace family;
 
 // node implementations
@@ -76,10 +79,10 @@ Node* Tree::findTheSon(const string& son, Node* check) const {
 
 
 const string Tree::relation(const string& name) {
-    string gender="";
+    string gender = "";
     int count = 1;
-    string answer="";
-    int i=2;
+    string answer = "";
+    int i = 2;
 
     if (this->root->getName() == name) {
         return "me";
@@ -89,9 +92,7 @@ const string Tree::relation(const string& name) {
         return "father";
     } else if (this->root->getMother()->getName() == name) {
         return "mother";
-    }
-
-    else {
+    } else {
         Node *ans = findTheSon(name, this->root);
         Node *temp;
         temp = ans;
@@ -105,28 +106,105 @@ const string Tree::relation(const string& name) {
             temp = temp->getSon();
         }
 
-        Node* son = ans->getSon();
-        if(son->getMother()->getName() == name)
-            gender = "mother";
+        Node *son = ans->getSon();
 
-        else if (son->getFather()->getName() == name)
+         if(son->getFather() == nullptr)
+                gender = "mother";
+
+         else if(son->getFather()->getName() == name)
+             gender = "father";
+
+         else gender = " ";
+
+        if(son->getMother() == nullptr)
             gender = "father";
 
-        while(i<count) {
-            answer+= "great-";
+        else if ((son->getMother()->getName() == name))
+                gender = "mother";
+
+        else gender = " ";
+
+
+            while (i < count) {
+                answer += "great-";
+                i++;
+            }
+            answer += "grand";
+            answer+= gender;
         }
-        answer="grand"+gender;
+        return answer;
     }
-    return answer;
+
+
+
+const string& Tree::find(const string& related) {
+    int i=0, count=2; int flag=0;
+
+    if(related.length() > 11) {
+        while (i < related.length() - 11) {
+            string subs = related.substr(i, 6);
+            if (related.substr(i, 6) != "great-") {
+                flag = 1;
+            }
+            i += 6;
+        }
+
+        if ((related.substr(i, 11) != "grandmother") && (related.substr(i, 11) != "grandfather")) {
+            flag = 1;
+        }
+    }
+
+    else if(related != "mother" && related != "father" && related != "grandmother" && related != "grandfather") {
+        flag=1;
+    }
+
+     if (flag)
+         throw std::out_of_range{ "The tree cannot handle the " + related + " relation"};
+
+
+
+
+    if (related == "me")
+        return this->root->getName();
+
+    if(related == "mother")
+        return this->root->getMother()->getName();
+
+    else if(related == "father")
+        return this->root->getFather()->getName();
+
+    else {
+        i=0;
+        while(i<related.length()-5) {
+            string subs = related.substr(i, 6);
+            if(related.substr(i, 6) == "great-") {
+                count++;
+            }
+            i+=6;
+        }
+
+        i=2;
+        Node* tryFather = this->root->getFather();
+        Node* tryMother = this->root->getMother();
+        while(i<count) {
+
+            if (tryMother->getMother() != nullptr)
+                tryMother = tryMother->getMother();
+
+            if(tryFather->getFather())
+                tryFather = tryFather->getFather();
+
+           i++;
+        }
+
+        if(relation(tryMother->getName()) == related) {
+            return tryMother->getName();
+        }
+
+        else return tryFather->getName();
+    }
+
 }
-
-
-
-//string Node::find(string relation, Node* name) {
-////    if (root == NULL || root->name == relation) return root;
-////    if (root->mother->name != relation) return relation(name->mother, root);
-////    return relation(name->father, root);
-//}
 
 
 

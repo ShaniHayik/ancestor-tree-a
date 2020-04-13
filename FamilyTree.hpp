@@ -64,7 +64,7 @@ public:
 
         const string relation(const string& name);
 
-//        const string& find(const string&, Node *) const;
+        const string& find(const string&);
 //
 //        void display(string) const;
 //
