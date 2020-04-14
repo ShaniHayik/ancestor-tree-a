@@ -6,6 +6,8 @@
 #include <string>
 #include <exception>
 #include <stdexcept>
+#include <iomanip>
+
 using namespace family;
 
 // node implementations
@@ -140,30 +142,6 @@ const string Tree::relation(const string& name) {
 const string& Tree::find(const string& related) {
     int i=0, count=2; int flag=0;
 
-    if(related.length() > 11) {
-        while (i < related.length() - 11) {
-            string subs = related.substr(i, 6);
-            if (related.substr(i, 6) != "great-") {
-                flag = 1;
-            }
-            i += 6;
-        }
-
-        if ((related.substr(i, 11) != "grandmother") && (related.substr(i, 11) != "grandfather")) {
-            flag = 1;
-        }
-    }
-
-    else if(related != "mother" && related != "father" && related != "grandmother" && related != "grandfather") {
-        flag=1;
-    }
-
-     if (flag)
-         throw std::out_of_range{ "The tree cannot handle the " + related + " relation"};
-
-
-
-
     if (related == "me")
         return this->root->getName();
 
@@ -173,14 +151,24 @@ const string& Tree::find(const string& related) {
     else if(related == "father")
         return this->root->getFather()->getName();
 
+    else if (related.length()<11)
+        throw std::out_of_range{ "The tree cannot handle the " + related + " relation"};
+
     else {
         i=0;
-        while(i<related.length()-5) {
+        while(i<related.length()-11) {
             string subs = related.substr(i, 6);
             if(related.substr(i, 6) == "great-") {
                 count++;
             }
+            else {
+                flag = 1;
+            }
             i+=6;
+        }
+
+        if (((related.substr(i, 11) != "grandmother") && (related.substr(i, 11) != "grandfather")) || flag) {
+                throw std::out_of_range{ "The tree cannot handle the " + related + " relation"};
         }
 
         i=2;
@@ -203,9 +191,73 @@ const string& Tree::find(const string& related) {
 
         else return tryFather->getName();
     }
+}
 
+
+//display credit: StackOverFlow site, https://stackoverflow.com/questions/13484943/print-a-binary-tree-in-a-pretty-way
+
+void Tree::display()
+{
+    if (root == NULL)
+    {
+        return;
+    }
+
+    cout << root->getName() << endl;
+    printSubtree(root, "");
+    cout << endl;
 }
 
 
 
+void Tree::printSubtree(Node* root, const string& prefix)
+{
+    if (root == NULL)
+    {
+        return;
+    }
+
+    bool hasLeft = (root->getMother() != NULL);
+    bool hasRight = (root->getFather() != NULL);
+
+    if (!hasLeft && !hasRight)
+    {
+        return;
+    }
+
+    cout << prefix;
+    cout << ((hasLeft  && hasRight) ? "├── " : "");
+    cout << ((!hasLeft && hasRight) ? "└── " : "");
+
+    if (hasRight)
+    {
+        bool printStrand = (hasLeft && hasRight && (root->getFather()->getFather() != NULL || root->getFather()->getMother() != NULL));
+        string newPrefix = prefix + (printStrand ? "│   " : "    ");
+        cout << root->getFather()->getName() << endl;
+        printSubtree(root->getFather(), newPrefix);
+    }
+
+    if (hasLeft)
+    {
+        cout << (hasRight ? prefix : "") << "└── " << root->getMother()->getName() << endl;
+        printSubtree(root->getMother(), prefix + "    ");
+    }
+}
+
+
+void Tree::remove(const string& name) {
+    Node* ans = findTheSon(name, this->root);
+    if(ans == nullptr) {
+        throw std::out_of_range{ "The name does not exist, there is no node to delete"};
+    }
+
+    else {
+        Node* son = ans->getSon();
+        if(son->getFather()->getName() == name)
+            son->setFather(nullptr);
+
+        else
+            son->setMother(nullptr);
+    }
+}
 
