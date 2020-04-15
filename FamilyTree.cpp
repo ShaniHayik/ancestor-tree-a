@@ -86,6 +86,7 @@ const string Tree::relation(const string& name) {
     string answer = "";
     int i = 2;
 
+
     if (this->root->getName() == name) {
         return "me";
     }
@@ -116,7 +117,7 @@ const string Tree::relation(const string& name) {
          else if(son->getFather()->getName() == name)
              gender = "father";
 
-         else gender = " ";
+         //else gender = " ";
 
         if(son->getMother() == nullptr)
             gender = "father";
@@ -124,7 +125,7 @@ const string Tree::relation(const string& name) {
         else if ((son->getMother()->getName() == name))
                 gender = "mother";
 
-        else gender = " ";
+       // else gender = " ";
 
 
             while (i < count) {
@@ -140,55 +141,57 @@ const string Tree::relation(const string& name) {
 
 
 const string& Tree::find(const string& related) {
-    int i=0, count=2; int flag=0;
+    int i = 0, count = 2;
+    int flag = 0;
 
     if (related == "me")
         return this->root->getName();
 
-    if(related == "mother")
+    if (related == "mother")
         return this->root->getMother()->getName();
 
-    else if(related == "father")
+    else if (related == "father")
         return this->root->getFather()->getName();
 
-    else if (related.length()<11)
-        throw std::out_of_range{ "The tree cannot handle the " + related + " relation"};
+    else if (related.length() < 11)
+        throw std::out_of_range{"The tree cannot handle the " + related + " relation"};
 
     else {
-        i=0;
-        while(i<related.length()-11) {
+        i = 0;
+        while (i < related.length() - 11) {
             string subs = related.substr(i, 6);
-            if(related.substr(i, 6) == "great-") {
+            if (related.substr(i, 6) == "great-") {
                 count++;
-            }
-            else {
+            } else {
                 flag = 1;
             }
-            i+=6;
+            i += 6;
         }
 
         if (((related.substr(i, 11) != "grandmother") && (related.substr(i, 11) != "grandfather")) || flag) {
-                throw std::out_of_range{ "The tree cannot handle the " + related + " relation"};
+            throw std::out_of_range{"The tree cannot handle the " + related + " relation"};
         }
 
-        i=2;
-        Node* tryFather = this->root->getFather();
-        Node* tryMother = this->root->getMother();
-        while(i<count) {
+        i = 2;
+        Node *tryFather = this->root->getFather();
+        Node *tryMother = this->root->getMother();
 
-            if (tryMother->getMother() != nullptr)
+        while (i <= count) {
+            if (tryMother->getMother() != nullptr) {
+                if (tryMother->getFather() != nullptr) tryFather = tryMother->getFather();
                 tryMother = tryMother->getMother();
+            }
 
-            if(tryFather->getFather())
-                tryFather = tryFather->getFather();
-
-           i++;
+            else {
+                if (tryFather->getMother() != nullptr) tryMother = tryFather->getMother();
+                if (tryFather->getFather() != nullptr) tryFather = tryFather->getFather();
+            }
+            i++;
         }
-
+        string a =relation(tryMother->getName());
         if(relation(tryMother->getName()) == related) {
             return tryMother->getName();
         }
-
         else return tryFather->getName();
     }
 }
