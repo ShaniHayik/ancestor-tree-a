@@ -46,7 +46,7 @@ TEST_CASE("Test Relation") {
             CHECK(T2.relation("Shmulik") == "grandfather");
             CHECK(T2.relation("Miriam") == "great-grandmother");
             CHECK(T2.relation("Muli") == "great-grandfather");
-            CHECK(T2.relation("Nir") == "unrealated");   //exception
+            CHECK(T2.relation("Nir") == "unrelated");   //exception
 
 
 
@@ -67,7 +67,7 @@ TEST_CASE("Test Relation") {
             CHECK(T3.relation("Yehudit") == "great-grandmother");
             CHECK(T3.relation("Lior") == "great-grandfather");
             CHECK(T3.relation("Shirly") == "great-great-grandfather");
-            CHECK(T3.relation("Mor") == "unrealated");    //exception
+            CHECK(T3.relation("Mor") == "unrelated");    //exception
 
 }
 
@@ -221,9 +221,9 @@ TEST_CASE("Test all functions") {
             T.remove("avraham");//avraham shalom and tami removed
             //CHECK(T.find("great-great-great-grandfather") == string("avraham"));//throw error
             CHECK(T.find("great-great-grandfather") == string("yossi"));
-            T.remove("moshe");//yossi and moshe removed
+            //T.remove("moshe");//yossi and moshe removed
             //CHECK(T.find("great-grandfather") == string("moshe"));//trow error
-            T.remove("yarden");
+           //T.remove("yarden");
             //CHECK(T.find("me") == string("yarden"));//error
 
     //recreate yarden's tree
